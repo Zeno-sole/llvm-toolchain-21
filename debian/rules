@@ -731,7 +731,7 @@ ifeq (,$(filter-out $(LLDB_PYTHON_DISABLE_DISTRO), $(DISTRO)))
   $(info LLBD Python disabled for $(DISTRO))
 endif
 
-LIBCXX_WASM_ENABLE=yes
+LIBCXX_WASM_ENABLE=no
 LIBCXX_WASM_DISABLE_DISTRO := bionic buster focal bullseye jammy
 # Either wasi-libc doesn't exist / too old
 # or we have this bug
@@ -741,7 +741,7 @@ ifeq (,$(filter-out $(LIBCXX_WASM_DISABLE_DISTRO), $(DISTRO)))
   $(info libcxx wasm disabled for $(DISTRO))
 endif
 
-DOC_GENERATION=yes
+DOC_GENERATION=no
 DOC_GENERATION_DISTRO := buster bullseye bionic focal
 # LLVM upstream moved to myst_parser but it isn't available on old distro
 ifeq (,$(filter-out $(DOC_GENERATION_DISTRO), $(DISTRO)))

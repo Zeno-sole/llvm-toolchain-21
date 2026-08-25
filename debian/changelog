@@ -1,3 +1,23 @@
+llvm-toolchain-21 (1:21.1.8-2deepin1) unstable; urgency=medium
+
+  * Disable libc++ WASI (wasm32) build by default
+    - Set LIBCXX_WASM_ENABLE=no by default in debian/rules so the
+      libc++/libc++abi wasm32 packages are not built regardless of the
+      distro codename, mirroring the OBS CI build.script which sets
+      LIBCXX_WASM_ENABLE=no before dpkg-buildpackage
+    - stamps/preconfigure then takes the "no" branch and skips the
+      dpkg -l wasi-libc presence check, which otherwise aborts the
+      build when the "wasi-libc | hello" build alternative is resolved
+      to the placeholder hello package and wasi-libc is not installed
+      ("Could not find wasi-libc on the system")
+  * Disable documentation generation by default
+    - Set DOC_GENERATION=no by default, matching the OBS CI
+      build.script (DOC_GENERATION=no), to skip the sphinx-based
+      documentation build which requires python3-myst-parser etc.
+      and is not needed for the deepin packages
+
+ -- lichenggang <lichenggang@uniontech.com>  Tue, 25 Aug 2026 18:14:19 +0800
+
 llvm-toolchain-21 (1:21.1.8-2) unstable; urgency=medium
 
   * Stop building multilibs on s390x. Closes: #1125253.
