@@ -234,6 +234,15 @@ else
   export DEB_CFLAGS_MAINT_STRIP = -g -O2
   export DEB_CXXFLAGS_MAINT_STRIP = -g -O2
 endif
+# LoongArch LSX (-mlsx) is injected by the UOS/deepin default build flags
+# on loong64. With GCC 12.3.0 it produces unrecognizable vector insns and
+# triggers an internal compiler error (extract_insn, recog.cc:2791) while
+# building llvm/lib/Transforms/Utils/SimplifyCFG.cpp. Strip it on loong64,
+# matching https://github.com/deepin-community/cmake/pull/4.
+ifeq ($(DEB_HOST_ARCH),loong64)
+  export DEB_CFLAGS_MAINT_STRIP += -mlsx
+  export DEB_CXXFLAGS_MAINT_STRIP += -mlsx
+endif
 include /usr/share/dpkg/buildflags.mk
 
 # Remove -Bsymbolic-functions for causing:
@@ -269,9 +278,14 @@ LDFLAGS_EXTRA = -Wl,--build-id
 # This will enable linking statically with large binaries like chromium.
 # For more details, see:
 # https://github.com/loongson/la-abi-specs/blob/release/laelf.adoc#code_models
+# Disable auto-vectorization on loong64 too: with GCC 12.3.0 the -O3
+# vectorizer emits a V2DI vec_duplicate that the loongarch64 backend
+# cannot recognize, aborting compilation of SimplifyCFG.cpp with
+# "internal compiler error: in extract_insn, at recog.cc:2791" (even
+# after stripping the LSX -mlsx flag).
 ifeq (loong64,$(DEB_HOST_ARCH))
-  CFLAGS_EXTRA += -mcmodel=medium
-  CXXFLAGS_EXTRA += -mcmodel=medium
+  CFLAGS_EXTRA += -mcmodel=medium -fno-tree-vectorize -fno-tree-slp-vectorize
+  CXXFLAGS_EXTRA += -mcmodel=medium -fno-tree-vectorize -fno-tree-slp-vectorize
 endif
 
 # collect all flags for stage 1 toolchain build only
