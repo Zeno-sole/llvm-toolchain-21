@@ -278,9 +278,14 @@ LDFLAGS_EXTRA = -Wl,--build-id
 # This will enable linking statically with large binaries like chromium.
 # For more details, see:
 # https://github.com/loongson/la-abi-specs/blob/release/laelf.adoc#code_models
+# Disable auto-vectorization on loong64 too: with GCC 12.3.0 the -O3
+# vectorizer emits a V2DI vec_duplicate that the loongarch64 backend
+# cannot recognize, aborting compilation of SimplifyCFG.cpp with
+# "internal compiler error: in extract_insn, at recog.cc:2791" (even
+# after stripping the LSX -mlsx flag).
 ifeq (loong64,$(DEB_HOST_ARCH))
-  CFLAGS_EXTRA += -mcmodel=medium
-  CXXFLAGS_EXTRA += -mcmodel=medium
+  CFLAGS_EXTRA += -mcmodel=medium -fno-tree-vectorize -fno-tree-slp-vectorize
+  CXXFLAGS_EXTRA += -mcmodel=medium -fno-tree-vectorize -fno-tree-slp-vectorize
 endif
 
 # collect all flags for stage 1 toolchain build only

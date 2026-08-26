@@ -1,3 +1,16 @@
+llvm-toolchain-21 (1:21.1.8-2deepin3) unstable; urgency=medium
+
+  * Disable auto-vectorization on loong64 to fix GCC 12 ICE
+    - Add -fno-tree-vectorize -fno-tree-slp-vectorize to CFLAGS/CXXFLAGS
+      on loong64; the -O3 vectorizer emits a V2DI vec_duplicate that
+      the GCC 12.3.0 loongarch64 backend cannot recognize
+    - Aborts compilation of llvm/lib/Transforms/Utils/SimplifyCFG.cpp
+      with "internal compiler error: in extract_insn, at recog.cc:2791"
+      even after stripping the LSX (-mlsx) flag (deepin2)
+    - Only affects loong64; keeps the -mlsx strip from deepin2
+
+ -- lichenggang <lichenggang@uniontech.com>  Tue, 25 Aug 2026 22:10:00 +0800
+
 llvm-toolchain-21 (1:21.1.8-2deepin2) unstable; urgency=medium
 
   * Disable LSX (-mlsx) on loong64
